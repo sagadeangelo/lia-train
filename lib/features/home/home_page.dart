@@ -203,7 +203,7 @@ class LiaHeroSection extends StatelessWidget {
                             ).createShader(const Rect.fromLTWH(0.0, 0.0, 400.0, 70.0)),
                         ),
                       ),
-                      const TextSpan(text: 'antes de presentarlo'),
+                      const TextSpan(text: ' antes de presentarlo'),
                     ],
                   ),
                 ),
