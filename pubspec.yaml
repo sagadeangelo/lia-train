@@ -1,0 +1,44 @@
+name: lia_train
+description: Plataforma de simulador inteligente para EGEL y Acuerdo 286 (LIA-Train)
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.6
+
+  # Estado
+  flutter_riverpod: ^2.5.1
+
+  # Navegación
+  go_router: ^14.2.0
+
+  # Firebase (puedes comentar si aún no lo usas)
+  firebase_core: ^3.6.0
+  firebase_auth: ^5.3.1
+  cloud_firestore: ^5.4.4
+  shared_preferences: ^2.5.5
+  just_audio: ^0.10.5
+  just_audio_windows: ^0.2.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Assets (listos para cuando metas imágenes o fuentes)
+  assets:
+    - assets/images/
+    - assets/fonts/
+    - assets/audio/ambient.mp3
