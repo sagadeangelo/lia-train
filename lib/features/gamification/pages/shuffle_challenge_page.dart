@@ -33,11 +33,11 @@ class _ShuffleChallengePageState extends State<ShuffleChallengePage> with Ticker
 
   final List<String> _areas = [
     'Programación',
-    'Bases de Datos',
-    'Redes',
-    'Ing. de Software',
-    'Seguridad',
-    'Hardware',
+    'Software',
+    'Redes y Seguridad',
+    'Programación',
+    'Software',
+    'Redes y Seguridad',
   ];
 
   @override
