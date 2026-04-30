@@ -8,6 +8,7 @@ class PracticaState {
   final Map<int, int> selectedAnswers; // Index in filtered list -> answer
   final String? selectedCategory;
   final bool showFeedback;
+  final bool isFallbackCategory;
 
   PracticaState({
     this.filteredQuestions = const [],
@@ -15,6 +16,7 @@ class PracticaState {
     this.selectedAnswers = const {},
     this.selectedCategory,
     this.showFeedback = false,
+    this.isFallbackCategory = false,
   });
 
   Question get currentQuestion => filteredQuestions[currentIndex];
@@ -28,6 +30,7 @@ class PracticaState {
     Map<int, int>? selectedAnswers,
     String? selectedCategory,
     bool? showFeedback,
+    bool? isFallbackCategory,
   }) {
     return PracticaState(
       filteredQuestions: filteredQuestions ?? this.filteredQuestions,
@@ -35,6 +38,7 @@ class PracticaState {
       selectedAnswers: selectedAnswers ?? this.selectedAnswers,
       selectedCategory: selectedCategory ?? this.selectedCategory,
       showFeedback: showFeedback ?? this.showFeedback,
+      isFallbackCategory: isFallbackCategory ?? this.isFallbackCategory,
     );
   }
 }
@@ -42,14 +46,53 @@ class PracticaState {
 class PracticaNotifier extends StateNotifier<PracticaState> {
   PracticaNotifier() : super(PracticaState());
 
+  String _normalize(String value) {
+    return value.toLowerCase().replaceAll(' ', '').trim();
+  }
+
+  static const Map<String, String> categoryMap = {
+    'redes': 'Redes y Seguridad',
+    'seguridad': 'Redes y Seguridad',
+    'ing.desoftware': 'Software',
+    'basesdedatos': 'Bases de Datos',
+    'programación': 'Programación',
+    // Nombres exactos como llaves normalizadas
+    'redesyseguridad': 'Redes y Seguridad',
+    'software': 'Software',
+  };
+
   void initCategory(String? category) {
-    final filtered = category == null 
-        ? List<Question>.from(allQuestions)
-        : allQuestions.where((q) => q.category == category).toList();
+    if (category == null) {
+      state = PracticaState(
+        filteredQuestions: List<Question>.from(allQuestions),
+        selectedCategory: null,
+      );
+      return;
+    }
+
+    final normalizedCategory = _normalize(category);
+    final mappedCategory = categoryMap[normalizedCategory] ?? category;
+
+    print('Categoría seleccionada: $category');
+    print('Categoría mapeada: $mappedCategory');
+
+    var filtered = allQuestions.where((q) {
+      return _normalize(q.category) == _normalize(mappedCategory);
+    }).toList();
+
+    var isFallback = false;
+    if (filtered.isEmpty) {
+      print('⚠️ No questions found for category: $mappedCategory');
+      filtered = allQuestions.take(10).toList();
+      isFallback = true;
+    }
+
+    print('Preguntas encontradas: ${filtered.length}');
     
     state = PracticaState(
       filteredQuestions: filtered,
       selectedCategory: category,
+      isFallbackCategory: isFallback,
     );
   }
 

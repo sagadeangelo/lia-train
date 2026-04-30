@@ -19,8 +19,38 @@ class _PracticaPageState extends ConsumerState<PracticaPage> {
   Widget build(BuildContext context) {
     final state = ref.watch(practicaProvider);
 
-    if (state.filteredQuestions.isEmpty && state.selectedCategory == null) {
-      return _buildCategorySelection();
+    if (state.filteredQuestions.isEmpty) {
+      if (state.selectedCategory == null) {
+        return _buildCategorySelection();
+      } else {
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const CircularProgressIndicator(color: AppColors.accent),
+                const SizedBox(height: 16),
+                const Text(
+                  "Estamos preparando tu simulación...",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
+                ),
+                const SizedBox(height: 16),
+                TextButton(
+                  onPressed: () {
+                    ref.read(practicaProvider.notifier).reset();
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (_) => const HomePage()),
+                      (route) => false,
+                    );
+                  },
+                  child: const Text('Volver al inicio', style: TextStyle(color: Colors.grey)),
+                )
+              ],
+            ),
+          ),
+        );
+      }
     }
 
     return _buildQuestionView(state);
@@ -128,6 +158,37 @@ class _PracticaPageState extends ConsumerState<PracticaPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      if (state.isFallbackCategory)
+                        Container(
+                          width: double.infinity,
+                          margin: const EdgeInsets.only(bottom: 24),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.black.withOpacity(0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: AppColors.accent.withOpacity(0.5)),
+                            boxShadow: [
+                              BoxShadow(color: AppColors.accent.withOpacity(0.1), blurRadius: 10, spreadRadius: 2),
+                            ],
+                          ),
+                          child: const Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.info_outline, color: AppColors.accent, size: 20),
+                                  SizedBox(width: 8),
+                                  Text('Modo de compatibilidad', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                                ],
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                'No encontramos suficientes preguntas específicas para esta área. Hemos cargado un set general para que puedas entrenar.',
+                                style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                              ),
+                            ],
+                          ),
+                        ),
                       Text(
                         'Pregunta ${state.currentIndex + 1} de ${state.filteredQuestions.length}',
                         style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold),
