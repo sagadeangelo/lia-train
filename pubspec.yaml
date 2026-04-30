@@ -27,6 +27,8 @@ dependencies:
   shared_preferences: ^2.5.5
   just_audio: ^0.10.5
   just_audio_windows: ^0.2.3
+  flutter_web_plugins:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:

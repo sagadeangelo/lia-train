@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../providers/demo_provider.dart';
 import '../../simulador/widgets/answer_option.dart';
 import '../../simulador/widgets/question_card.dart';
@@ -188,10 +189,7 @@ class DemoResultPage extends ConsumerWidget {
               TextButton(
                 onPressed: () {
                   ref.read(demoProvider.notifier).reset();
-                  Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (_) => const HomePage()),
-                    (route) => false,
-                  );
+                  context.go('/');
                 },
                 child: const Text('Volver al inicio', style: TextStyle(color: Colors.grey)),
               ),

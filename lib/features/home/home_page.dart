@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../data/services/persistence_service.dart';
 import '../simulador/pages/pre_exam_page.dart';
 import '../simulador/pages/simulador_page.dart';
@@ -556,10 +557,7 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const ShuffleChallengePage()),
-                      );
+                      context.go('/train/challenge');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
@@ -694,7 +692,7 @@ class LiaBottomCTA extends StatelessWidget {
           const SizedBox(width: 40),
           ElevatedButton.icon(
             onPressed: () {
-               Navigator.push(context, MaterialPageRoute(builder: (_) => const ShuffleChallengePage()));
+               context.go('/train/challenge');
             },
             icon: const Text('Descubre si pasarías hoy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             label: const Icon(Icons.arrow_forward, color: Colors.white),
