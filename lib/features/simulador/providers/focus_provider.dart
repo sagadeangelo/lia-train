@@ -8,13 +8,13 @@ class FocusTrack {
   const FocusTrack({required this.name, required this.assetPath});
 }
 
-const FocusTrack _defaultTrack = FocusTrack(name: 'Lo-Fi', assetPath: 'assets/audio/lofi.mp3');
+const FocusTrack _defaultTrack = FocusTrack(name: 'Lo-Fi', assetPath: 'assets/audio/track_lofi.mp3');
 
 const List<FocusTrack> focusTracks = [
   _defaultTrack,
-  FocusTrack(name: 'Ambient', assetPath: 'assets/audio/ambient.mp3'),
-  FocusTrack(name: 'Piano', assetPath: 'assets/audio/piano.mp3'),
-  FocusTrack(name: 'White Noise', assetPath: 'assets/audio/white_noise.mp3'),
+  FocusTrack(name: 'Ambient', assetPath: 'assets/audio/track_ambient.mp3'),
+  FocusTrack(name: 'Piano', assetPath: 'assets/audio/track_piano.mp3'),
+  FocusTrack(name: 'White Noise', assetPath: 'assets/audio/track_white_noise.mp3'),
 ];
 
 class FocusState {
