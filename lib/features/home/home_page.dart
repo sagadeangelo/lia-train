@@ -6,6 +6,7 @@ import '../simulador/pages/pre_exam_page.dart';
 import '../simulador/pages/simulador_page.dart';
 import '../demo/pages/demo_exam_page.dart';
 import '../gamification/pages/shuffle_challenge_page.dart';
+import '../simulador/providers/exam_provider.dart';
 import '../../core/constants/app_colors.dart';
 
 final progressProvider = FutureProvider<Map<String, dynamic>>((ref) {
@@ -375,15 +376,15 @@ class _LiaCareerGridState extends State<LiaCareerGrid> {
   }
 }
 
-class CareerItem extends StatefulWidget {
+class CareerItem extends ConsumerStatefulWidget {
   final CareerInfo info;
   const CareerItem({super.key, required this.info});
 
   @override
-  State<CareerItem> createState() => _CareerItemState();
+  ConsumerState<CareerItem> createState() => _CareerItemState();
 }
 
-class _CareerItemState extends State<CareerItem> {
+class _CareerItemState extends ConsumerState<CareerItem> {
   bool _isHovered = false;
 
   @override
@@ -394,6 +395,25 @@ class _CareerItemState extends State<CareerItem> {
       child: GestureDetector(
         onTap: () {
           if (widget.info.name == 'Sistemas / TI') {
+            ref.read(examProvider.notifier).generateExam(career: 'Sistemas / TI');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Administración') {
+            ref.read(examProvider.notifier).generateExam(career: 'Administración');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Derecho') {
+            ref.read(examProvider.notifier).generateExam(career: 'Derecho');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Contaduría') {
+            ref.read(examProvider.notifier).generateExam(career: 'Contaduría');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Ing. Industrial') {
+            ref.read(examProvider.notifier).generateExam(career: 'Ingeniería Industrial');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Psicología') {
+            ref.read(examProvider.notifier).generateExam(career: 'Psicología');
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+          } else if (widget.info.name == 'Enfermería') {
+            ref.read(examProvider.notifier).generateExam(career: 'Enfermería');
             Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
           }
         },
@@ -557,7 +577,7 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      context.go('/train/challenge');
+                      context.go('/challenge');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
@@ -692,7 +712,7 @@ class LiaBottomCTA extends StatelessWidget {
           const SizedBox(width: 40),
           ElevatedButton.icon(
             onPressed: () {
-               context.go('/train/challenge');
+               context.go('/challenge');
             },
             icon: const Text('Descubre si pasarías hoy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             label: const Icon(Icons.arrow_forward, color: Colors.white),

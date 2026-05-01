@@ -12,7 +12,7 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const HomePage(),
     ),
     GoRoute(
-      path: '/train/challenge',
+      path: '/challenge',
       builder: (context, state) {
         debugPrint('Navigating to ChallengePage via GoRouter');
         return const ShuffleChallengePage();

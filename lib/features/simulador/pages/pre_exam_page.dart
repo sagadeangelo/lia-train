@@ -81,40 +81,41 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Estás a punto de iniciar tu simulación',
+                  'Preparación para tu simulación',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 20),
                 _buildInfoCard(),
-                const SizedBox(height: 32),
+                const SizedBox(height: 24),
                 const Text(
                   'Concéntrate. Respira. Este simulador replica el examen real.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontStyle: FontStyle.italic,
                     color: Color(0xFF94A3B8),
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 const Text(
                   'Tu objetivo: identificar tus áreas débiles y mejorar tu resultado.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 15,
                     fontWeight: FontWeight.w500,
                     color: AppColors.accent,
                   ),
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: 24),
                 _buildFocusSection(),
-                const SizedBox(height: 48),
+                const SizedBox(height: 32),
                 _buildButtons(),
+                const SizedBox(height: 20),
               ],
             ),
           ),
@@ -125,23 +126,20 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
 
   Widget _buildInfoCard() {
     return Container(
-      padding: const EdgeInsets.all(32),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: Colors.white.withOpacity(0.05),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withOpacity(0.1)),
-        boxShadow: [
-          BoxShadow(color: Colors.black.withOpacity(0.2), blurRadius: 20),
-        ],
       ),
       child: Column(
         children: [
           _buildInfoRow(Icons.help_outline, '40 preguntas'),
-          const Divider(height: 32, color: Colors.white10),
+          const Divider(height: 24, color: Colors.white10),
           _buildInfoRow(Icons.timer_outlined, '40 minutos'),
-          const Divider(height: 32, color: Colors.white10),
+          const Divider(height: 24, color: Colors.white10),
           _buildInfoRow(Icons.pause_circle_outline, 'No podrás pausar el examen', isWarning: true),
-          const Divider(height: 32, color: Colors.white10),
+          const Divider(height: 24, color: Colors.white10),
           _buildInfoRow(Icons.visibility_off_outlined, 'No se mostrará si las respuestas son correctas'),
         ],
       ),
@@ -232,28 +230,29 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
 
   Widget _buildButtons() {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         SizedBox(
           width: double.infinity,
-          height: 64,
+          height: 54,
           child: ElevatedButton(
             onPressed: _startCountdown,
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.accent,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-              elevation: 8,
-              shadowColor: AppColors.accent.withOpacity(0.5),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              elevation: 4,
             ),
             child: const Text(
               'Iniciar simulación',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar', style: TextStyle(color: Colors.grey, fontSize: 16)),
+          style: TextButton.styleFrom(visualDensity: VisualDensity.compact),
+          child: const Text('Cancelar', style: TextStyle(color: Colors.grey, fontSize: 14)),
         ),
       ],
     );

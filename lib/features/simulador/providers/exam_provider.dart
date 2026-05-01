@@ -67,25 +67,63 @@ class ExamState {
 
 class ExamNotifier extends StateNotifier<ExamState> {
   ExamNotifier() : super(ExamState(questions: [])) {
+    // La generación inicial por defecto es Sistemas
     generateExam();
   }
 
-  void generateExam() {
+  void generateExam({String career = 'Sistemas / TI'}) {
     final random = Random();
-    
-    // Categorías objetivo
-    final categories = ['Bases de Datos', 'Programación', 'Redes y Seguridad', 'Software'];
     List<Question> selectedQuestions = [];
 
-    for (var cat in categories) {
-      final catQuestions = allQuestions.where((q) => q.category == cat).toList();
-      catQuestions.shuffle(random);
-      // Tomar exactamente 10 de cada una
-      selectedQuestions.addAll(catQuestions.take(10));
+    if (career == 'Administración') {
+      final adminQuestions = allQuestions.where((q) => q.category == 'Administración').toList();
+      adminQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Administración para igualar a Sistemas
+      selectedQuestions = adminQuestions.take(40).toList();
+    } else if (career == 'Derecho') {
+      final lawQuestions = allQuestions.where((q) => q.category == 'Derecho').toList();
+      lawQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Derecho para el simulador EGEL
+      selectedQuestions = lawQuestions.take(40).toList();
+    } else if (career == 'Contaduría') {
+      final accQuestions = allQuestions.where((q) => q.category == 'Contaduría').toList();
+      accQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Contaduría para el simulador EGEL
+      selectedQuestions = accQuestions.take(40).toList();
+    } else if (career == 'Ingeniería Industrial') {
+      final indQuestions = allQuestions.where((q) => q.category == 'Ingeniería Industrial').toList();
+      indQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Ing. Industrial para el simulador EGEL
+      selectedQuestions = indQuestions.take(40).toList();
+    } else if (career == 'Psicología') {
+      final psiQuestions = allQuestions.where((q) => q.category == 'Psicología').toList();
+      psiQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Psicología para el simulador EGEL
+      selectedQuestions = psiQuestions.take(40).toList();
+    } else if (career == 'Enfermería') {
+      final enfQuestions = allQuestions.where((q) => q.category == 'Enfermería').toList();
+      enfQuestions.shuffle(random);
+      // Tomamos 40 preguntas de Enfermería para el simulador EGEL
+      selectedQuestions = enfQuestions.take(40).toList();
+    } else {
+      // Categorías objetivo para Sistemas / TI
+      final categories = ['Bases de Datos', 'Programación', 'Redes y Seguridad', 'Software'];
+      for (var cat in categories) {
+        final catQuestions = allQuestions.where((q) => q.category == cat).toList();
+        catQuestions.shuffle(random);
+        // Tomar exactamente 10 de cada una para un total de 40
+        selectedQuestions.addAll(catQuestions.take(10));
+      }
     }
 
     selectedQuestions.shuffle(random);
-    state = ExamState(questions: selectedQuestions);
+    state = ExamState(
+      questions: selectedQuestions,
+      currentIndex: 0,
+      answers: {},
+      markedQuestions: {},
+      isFinished: false,
+    );
   }
 
   void selectAnswer(int optionIndex) {
@@ -129,6 +167,7 @@ class ExamNotifier extends StateNotifier<ExamState> {
   }
 
   void resetExam() {
+    // Por ahora el reset usa la última configuración, pero por defecto Sistemas
     generateExam();
   }
 }
