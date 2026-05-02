@@ -29,6 +29,7 @@ dependencies:
   just_audio_windows: ^0.2.3
   flutter_web_plugins:
     sdk: flutter
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

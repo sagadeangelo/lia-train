@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../data/services/persistence_service.dart';
 import '../simulador/pages/pre_exam_page.dart';
 import '../simulador/pages/simulador_page.dart';
@@ -17,12 +18,16 @@ class CareerInfo {
   final String name;
   final String description;
   final String imagePath;
+  final String pdfImagePath;
+  final String? pdfUrl;
   final Color color;
 
   const CareerInfo({
     required this.name,
     required this.description,
     required this.imagePath,
+    required this.pdfImagePath,
+    this.pdfUrl,
     required this.color,
   });
 }
@@ -32,42 +37,50 @@ const List<CareerInfo> careers = [
     name: 'Sistemas / TI',
     description: 'Simulador EGEL con programación, redes, bases de datos y más.',
     imagePath: 'assets/images/book_systems.png',
+    pdfImagePath: 'assets/images/book_systems_pdf.png',
+    pdfUrl: 'guias/pdf/guia_egel_sistemas_final.pdf',
     color: Color(0xFF3B82F6),
   ),
   CareerInfo(
     name: 'Administración',
     description: 'Simulador EGEL en gestión empresarial, finanzas, marketing y más.',
     imagePath: 'assets/images/book_admin.png',
+    pdfImagePath: 'assets/images/book_admin_pdf.png',
     color: Color(0xFF10B981),
   ),
   CareerInfo(
     name: 'Derecho',
     description: 'Simulador EGEL en leyes, procesos jurídicos y ética profesional.',
     imagePath: 'assets/images/book_law.png',
+    pdfImagePath: 'assets/images/book_law_pdf.png',
     color: Color(0xFFF59E0B),
   ),
   CareerInfo(
     name: 'Contaduría',
     description: 'Simulador EGEL en auditoría, impuestos, contabilidad y costos.',
     imagePath: 'assets/images/book_accounting.png',
+    pdfImagePath: 'assets/images/book_accounting_pdf.png',
     color: Color(0xFF8B5CF6),
   ),
   CareerInfo(
     name: 'Ing. Industrial',
     description: 'Simulador EGEL en procesos, calidad, logística y mejora continua.',
     imagePath: 'assets/images/book_industrial.png',
+    pdfImagePath: 'assets/images/book_industrial_pdf.png',
     color: Color(0xFF06B6D4),
   ),
   CareerInfo(
     name: 'Psicología',
     description: 'Simulador EGEL en clínica, social, organizacional y educativa.',
-    imagePath: 'assets/images/book_industrial.png', // Placeholder
+    imagePath: 'assets/images/book_psichology.png',
+    pdfImagePath: 'assets/images/book_psichology_pdf.png',
     color: Color(0xFFEC4899),
   ),
   CareerInfo(
     name: 'Enfermería',
     description: 'Simulador EGEL en cuidados críticos, salud pública y gestión.',
-    imagePath: 'assets/images/book_law.png', // Placeholder
+    imagePath: 'assets/images/book_nursing.png',
+    pdfImagePath: 'assets/images/book_nursing_pdf.png',
     color: Color(0xFFEF4444),
   ),
 ];
@@ -104,13 +117,15 @@ class LiaNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 48, vertical: 24),
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 24),
       child: Row(
         children: [
           Row(
             children: [
-              Image.asset('assets/images/lia_train_logo.png', height: 64),
+              Image.asset('assets/images/lia_train_logo.png', height: isMobile ? 48 : 64),
               const SizedBox(width: 16),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -118,7 +133,7 @@ class LiaNavBar extends StatelessWidget {
                   Text(
                     'LIA-TRAIN',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: isMobile ? 18 : 24,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                       letterSpacing: 1.8,
@@ -126,23 +141,28 @@ class LiaNavBar extends StatelessWidget {
                   ),
                   Text(
                     'Simulador EGEL',
-                    style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 10, color: AppColors.textSecondary),
                   ),
                 ],
               ),
             ],
           ),
           const Spacer(),
-          _buildNavBadge(Icons.bolt, 'Modo Examen Real'),
-          const SizedBox(width: 24),
-          _buildNavBadge(null, '40 Preguntas'),
-          const SizedBox(width: 24),
-          _buildNavBadge(Icons.access_time, '40 Minutos'),
-          const SizedBox(width: 48),
+          if (!isMobile) ...[
+            _buildNavBadge(Icons.bolt, 'Modo Examen Real'),
+            const SizedBox(width: 24),
+            _buildNavBadge(null, '40 Preguntas'),
+            const SizedBox(width: 24),
+            _buildNavBadge(Icons.access_time, '40 Minutos'),
+            const SizedBox(width: 48),
+          ],
           TextButton.icon(
             onPressed: () {},
-            icon: const Icon(Icons.person_outline, color: Colors.white),
-            label: const Text('Iniciar sesión', style: TextStyle(color: Colors.white)),
+            icon: const Icon(Icons.person_outline, color: Colors.white, size: 20),
+            label: Text(
+              isMobile ? '' : 'Iniciar sesión',
+              style: const TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -175,21 +195,26 @@ class LiaHeroSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 80),
-      child: Row(
+      padding: EdgeInsets.symmetric(horizontal: isMobile ? 24 : 80),
+      child: Flex(
+        direction: isMobile ? Axis.vertical : Axis.horizontal,
+        crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.center,
         children: [
           Expanded(
-            flex: 5,
+            flex: isMobile ? 0 : 5,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
               children: [
                 _buildModeBadge(),
                 const SizedBox(height: 24),
                 RichText(
+                  textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   text: TextSpan(
-                    style: const TextStyle(
-                      fontSize: 56,
+                    style: TextStyle(
+                      fontSize: isMobile ? 36 : 56,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                       height: 1.1,
@@ -210,32 +235,46 @@ class LiaHeroSection extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Entrena con simulaciones tipo EGEL / 286, detecta tus\náreas débiles y asegura tu resultado con precisión IA.',
+                  textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   style: TextStyle(
-                    fontSize: 20,
-                    color: Color(0xFF94A3B8),
+                    fontSize: isMobile ? 16 : 20,
+                    color: const Color(0xFF94A3B8),
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: 48),
-                Row(
-                  children: [
-                    _buildFeatureItem(Icons.shield_outlined, 'Formato oficial', 'EGEL / 286'),
-                    const SizedBox(width: 40),
-                    _buildFeatureItem(Icons.psychology_outlined, 'Análisis IA', 'Resultados precisos'),
-                    const SizedBox(width: 40),
-                    _buildFeatureItem(Icons.trending_up, 'Mejora continua', 'Sigue tu progreso'),
-                  ],
-                ),
+                const SizedBox(height: isMobile ? 32 : 48),
+                if (isMobile)
+                  Column(
+                    children: [
+                      _buildFeatureItem(Icons.shield_outlined, 'Formato oficial', 'EGEL / 286'),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(Icons.psychology_outlined, 'Análisis IA', 'Resultados precisos'),
+                      const SizedBox(height: 16),
+                      _buildFeatureItem(Icons.trending_up, 'Mejora continua', 'Sigue tu progreso'),
+                    ],
+                  )
+                else
+                  Row(
+                    children: [
+                      _buildFeatureItem(Icons.shield_outlined, 'Formato oficial', 'EGEL / 286'),
+                      const SizedBox(width: 40),
+                      _buildFeatureItem(Icons.psychology_outlined, 'Análisis IA', 'Resultados precisos'),
+                      const SizedBox(width: 40),
+                      _buildFeatureItem(Icons.trending_up, 'Mejora continua', 'Sigue tu progreso'),
+                    ],
+                  ),
               ],
             ),
           ),
+          if (isMobile) const SizedBox(height: 48),
           Expanded(
-            flex: 4,
+            flex: isMobile ? 0 : 4,
             child: Center(
               child: Image.asset(
                 'assets/images/hero_books.png',
+                height: isMobile ? 240 : null,
                 fit: BoxFit.contain,
               ),
             ),
@@ -330,6 +369,20 @@ class _LiaCareerGridState extends State<LiaCareerGrid> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    if (isMobile) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Column(
+          children: careers.expand((c) => [
+            CareerItem(info: c),
+            const SizedBox(height: 32),
+          ]).toList()..removeLast(),
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Stack(
@@ -384,87 +437,259 @@ class CareerItem extends ConsumerStatefulWidget {
   ConsumerState<CareerItem> createState() => _CareerItemState();
 }
 
-class _CareerItemState extends ConsumerState<CareerItem> {
+class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProviderStateMixin {
   bool _isHovered = false;
+  bool _isHoveredSimular = false;
+  bool _isHoveredPdf = false;
+  bool _isHoveredBundle = false;
+
+  bool _isPressedSimular = false;
+  bool _isPressedPdf = false;
+  bool _isPressedBundle = false;
+
+  late AnimationController _pulseController;
+  late Animation<double> _pulseAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
+      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
+  }
+
+  void _onSimularTap() {
+    ref.read(examProvider.notifier).generateExam(
+      career: widget.info.name == 'Ing. Industrial' ? 'Ingeniería Industrial' : widget.info.name,
+    );
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+  }
+
+  void _onPdfTap() async {
+    if (widget.info.pdfUrl != null) {
+      final uri = Uri.parse(widget.info.pdfUrl!);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('No se pudo abrir el PDF.'), backgroundColor: Colors.red),
+          );
+        }
+      }
+    } else {
+      _showPurchaseSnack();
+    }
+  }
+
+  void _onBundleTap() {
+    _showPurchaseSnack();
+  }
+
+  void _showPurchaseSnack() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Iniciando flujo de compra seguro...'),
+        backgroundColor: Color(0xFF009EE3),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTap: () {
-          if (widget.info.name == 'Sistemas / TI') {
-            ref.read(examProvider.notifier).generateExam(career: 'Sistemas / TI');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Administración') {
-            ref.read(examProvider.notifier).generateExam(career: 'Administración');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Derecho') {
-            ref.read(examProvider.notifier).generateExam(career: 'Derecho');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Contaduría') {
-            ref.read(examProvider.notifier).generateExam(career: 'Contaduría');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Ing. Industrial') {
-            ref.read(examProvider.notifier).generateExam(career: 'Ingeniería Industrial');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Psicología') {
-            ref.read(examProvider.notifier).generateExam(career: 'Psicología');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          } else if (widget.info.name == 'Enfermería') {
-            ref.read(examProvider.notifier).generateExam(career: 'Enfermería');
-            Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
-          }
-        },
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 768;
+
+    return Container(
+      margin: EdgeInsets.only(right: isMobile ? 0 : 20),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _isHovered = true),
+        onExit: (_) => setState(() => _isHovered = false),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          width: 180,
-          margin: const EdgeInsets.only(right: 16),
-          padding: const EdgeInsets.all(16),
+          width: isMobile ? double.infinity : 280,
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 24 : 24,
+            vertical: isMobile ? 48 : 30,
+          ),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.05),
-            borderRadius: BorderRadius.circular(16),
+            color: const Color(0xFF0F172A).withOpacity(0.4),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: _isHovered ? widget.info.color : Colors.white.withOpacity(0.1),
+              color: _isHovered ? widget.info.color : Colors.white.withOpacity(0.08),
               width: 2,
             ),
             boxShadow: [
-              if (_isHovered)
-                BoxShadow(color: widget.info.color.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+              if (_isHovered || isMobile)
+                BoxShadow(
+                  color: widget.info.color.withOpacity(isMobile ? 0.2 : 0.15),
+                  blurRadius: 30,
+                  spreadRadius: 2,
+                ),
             ],
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Image.asset(widget.info.imagePath, height: 100),
-              const SizedBox(height: 16),
+              Image.asset(widget.info.imagePath, height: isMobile ? 140 : 100),
+              const SizedBox(height: 20),
               Text(
                 widget.info.name,
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w900,
+                  fontSize: isMobile ? 28 : 22,
+                ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               Text(
                 widget.info.description,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: Colors.grey, fontSize: 11, height: 1.4),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
-                  color: widget.info.color.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.6),
+                  fontSize: isMobile ? 15 : 13,
+                  height: 1.4,
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.play_arrow_rounded, size: 12, color: widget.info.color),
-                    const SizedBox(width: 4),
-                    Text(
-                      'SIMULAR EGEL',
-                      style: TextStyle(color: widget.info.color, fontWeight: FontWeight.bold, fontSize: 10),
+              ),
+              const SizedBox(height: 32),
+
+              // 1. SIMULADOR (ENTRADA)
+              _buildTapButton(
+                isPressed: _isPressedSimular,
+                onTapDown: (_) => setState(() => _isPressedSimular = true),
+                onTapUp: (_) => setState(() => _isPressedSimular = false),
+                onTapCancel: () => setState(() => _isPressedSimular = false),
+                onHover: (v) => setState(() => _isHoveredSimular = v),
+                isHovered: _isHoveredSimular,
+                child: _buildSimpleButton(
+                  text: "▶ Simular EGEL - \$149",
+                  icon: null,
+                  color: widget.info.color,
+                  onTap: _onSimularTap,
+                  isMobile: isMobile,
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
+              // 2. GUÍA PDF (ALTERNATIVA)
+              _buildTapButton(
+                isPressed: _isPressedPdf,
+                onTapDown: (_) => setState(() => _isPressedPdf = true),
+                onTapUp: (_) => setState(() => _isPressedPdf = false),
+                onTapCancel: () => setState(() => _isPressedPdf = false),
+                onHover: (v) => setState(() => _isHoveredPdf = v),
+                isHovered: _isHoveredPdf,
+                child: _buildOutlineButton(
+                  text: "📘 Guía PDF - \$299",
+                  subtitle: "Estudia a tu ritmo",
+                  color: widget.info.color,
+                  onTap: _onPdfTap,
+                  isMobile: isMobile,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // 3. BUNDLE (CONVERSIÓN PRINCIPAL)
+              Text(
+                "🔥 MÁS POPULAR",
+                style: TextStyle(
+                  color: const Color(0xFFF59E0B),
+                  fontWeight: FontWeight.w900,
+                  fontSize: isMobile ? 13 : 12,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "💎 Ahorra \$99 (antes \$448)",
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.8),
+                  fontSize: isMobile ? 12 : 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 12),
+              _buildTapButton(
+                isPressed: _isPressedBundle,
+                onTapDown: (_) => setState(() => _isPressedBundle = true),
+                onTapUp: (_) => setState(() => _isPressedBundle = false),
+                onTapCancel: () => setState(() => _isPressedBundle = false),
+                onHover: (v) => setState(() => _isHoveredBundle = v),
+                isHovered: _isHoveredBundle,
+                child: GestureDetector(
+                  onTap: _onBundleTap,
+                  child: AnimatedScale(
+                    scale: (_isHoveredBundle && !isMobile) ? 1.03 : 1.0,
+                    duration: const Duration(milliseconds: 200),
+                    child: ScaleTransition(
+                      scale: _pulseAnimation,
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.symmetric(vertical: isMobile ? 24 : 18),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [widget.info.color, widget.info.color.withOpacity(0.7)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: widget.info.color.withOpacity(0.6),
+                              blurRadius: isMobile ? 25 : 20,
+                              spreadRadius: isMobile ? 4 : 2,
+                            ),
+                          ],
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              "🔥 Todo incluido - \$349",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                fontSize: isMobile ? 19 : 16,
+                              ),
+                            ),
+                            Text(
+                              "Guía + Simulador",
+                              style: TextStyle(
+                                color: Colors.white.withOpacity(0.9),
+                                fontSize: isMobile ? 14 : 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                "🔥 Incluye 200 casos tipo examen real",
+                style: TextStyle(
+                  color: Colors.white.withOpacity(0.5),
+                  fontSize: isMobile ? 13 : 12,
+                  fontStyle: FontStyle.italic,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ],
@@ -473,7 +698,113 @@ class _CareerItemState extends ConsumerState<CareerItem> {
       ),
     );
   }
+
+  Widget _buildTapButton({
+    required bool isPressed,
+    required Function(TapDownDetails) onTapDown,
+    required Function(TapUpDetails) onTapUp,
+    required VoidCallback onTapCancel,
+    required Function(bool) onHover,
+    required bool isHovered,
+    required Widget child,
+  }) {
+    return MouseRegion(
+      onEnter: (_) => onHover(true),
+      onExit: (_) => onHover(false),
+      child: GestureDetector(
+        onTapDown: onTapDown,
+        onTapUp: onTapUp,
+        onTapCancel: onTapCancel,
+        child: AnimatedScale(
+          scale: isPressed ? 0.97 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          child: child,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSimpleButton({
+    required String text,
+    IconData? icon,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isMobile,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: color,
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 18 : 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          elevation: 0,
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(icon, color: Colors.white, size: isMobile ? 20 : 18),
+              const SizedBox(width: 8),
+            ],
+            Text(
+              text,
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w900,
+                fontSize: isMobile ? 16 : 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildOutlineButton({
+    required String text,
+    String? subtitle,
+    required Color color,
+    required VoidCallback onTap,
+    required bool isMobile,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: onTap,
+        style: OutlinedButton.styleFrom(
+          side: BorderSide(color: color.withOpacity(0.5), width: 2),
+          padding: EdgeInsets.symmetric(vertical: isMobile ? 14 : 14),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: color.withOpacity(0.05),
+        ),
+        child: Column(
+          children: [
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.w900,
+                fontSize: isMobile ? 16 : 13,
+              ),
+            ),
+            if (subtitle != null)
+              Text(
+                subtitle,
+                style: TextStyle(
+                  color: color.withOpacity(0.7),
+                  fontWeight: FontWeight.w500,
+                  fontSize: isMobile ? 13 : 11,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
+
 
 class LiaTrainPromoSection extends StatefulWidget {
   const LiaTrainPromoSection({super.key});
@@ -507,10 +838,12 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 48, vertical: 40),
-      padding: const EdgeInsets.all(60),
+      margin: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 48, vertical: 40),
+      padding: EdgeInsets.all(isMobile ? 32 : 60),
       decoration: BoxDecoration(
         color: const Color(0xFF0F172A),
         borderRadius: BorderRadius.circular(32),
@@ -523,12 +856,13 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
           ),
         ],
       ),
-      child: Row(
+      child: Flex(
+        direction: isMobile ? Axis.vertical : Axis.horizontal,
         children: [
           Expanded(
-            flex: 3,
+            flex: isMobile ? 0 : 3,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: isMobile ? CrossAxisAlignment.center : CrossAxisAlignment.start,
               children: [
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -554,27 +888,30 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   '¿Pasarías tu examen\nprofesional hoy?',
+                  textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 48,
+                    fontSize: isMobile ? 32 : 48,
                     fontWeight: FontWeight.w900,
                     height: 1.1,
                   ),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Descúbrelo en menos de 1 minuto con nuestro\nsimulador inteligente tipo EGEL / 286.',
+                  textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   style: TextStyle(
-                    color: Color(0xFF94A3B8),
-                    fontSize: 20,
+                    color: const Color(0xFF94A3B8),
+                    fontSize: isMobile ? 16 : 20,
                     height: 1.4,
                   ),
                 ),
                 const SizedBox(height: 40),
                 SizedBox(
                   height: 60,
+                  width: isMobile ? double.infinity : null,
                   child: ElevatedButton(
                     onPressed: () {
                       context.go('/challenge');
@@ -587,6 +924,7 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
                       shadowColor: AppColors.accent.withOpacity(0.4),
                     ),
                     child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
@@ -602,14 +940,15 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
               ],
             ),
           ),
+          if (isMobile) const SizedBox(height: 48),
           Expanded(
-            flex: 2,
+            flex: isMobile ? 0 : 2,
             child: Center(
               child: ScaleTransition(
                 scale: _cardScale,
                 child: Container(
-                  width: 220,
-                  height: 300,
+                  width: isMobile ? 180 : 220,
+                  height: isMobile ? 240 : 300,
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
                       colors: [AppColors.primary, AppColors.secondary],
