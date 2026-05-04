@@ -44,6 +44,39 @@ class _SimuladorPageState extends ConsumerState<SimuladorPage> {
       }
     });
 
+    // Escuchar el progreso para avisar del bloque final
+    ref.listen(examProvider.select((s) => s.currentIndex), (previous, next) {
+      final questions = ref.read(examProvider).questions;
+      if (questions.isEmpty) return;
+      
+      final total = questions.length;
+      final oldProgress = (previous ?? 0) / total;
+      final newProgress = next / total;
+      
+      if (oldProgress <= 0.9 && newProgress > 0.9) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Row(
+              children: [
+                Icon(Icons.whatshot, color: Colors.white),
+                SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    '¡ENTRANDO A BLOQUE FINAL! Prepárate para el máximo nivel de desafío.',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: AppColors.error,
+            duration: const Duration(seconds: 4),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          ),
+        );
+      }
+    });
+
     final exam = ref.watch(examProvider);
     final timer = ref.watch(examTimerProvider);
     final isDesktop = MediaQuery.of(context).size.width > 900;
@@ -88,9 +121,15 @@ class _SimuladorPageState extends ConsumerState<SimuladorPage> {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text(
-                                        'Pregunta ${exam.currentIndex + 1} de ${exam.questions.length}',
-                                        style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Pregunta ${exam.currentIndex + 1} de ${exam.questions.length}',
+                                            style: const TextStyle(color: AppColors.textSecondary, fontWeight: FontWeight.bold),
+                                          ),
+                                          const SizedBox(width: 12),
+                                          _buildLevelIndicator(exam),
+                                        ],
                                       ),
                                       _buildMarkButton(exam, ref),
                                     ],
@@ -325,7 +364,6 @@ class _SimuladorPageState extends ConsumerState<SimuladorPage> {
       ],
     );
   }
-
   void _confirmExit(BuildContext context) {
     showDialog(
       context: context,
@@ -378,6 +416,52 @@ class _SimuladorPageState extends ConsumerState<SimuladorPage> {
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
             child: const Text('Finalizar y entregar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLevelIndicator(ExamState exam) {
+    final total = exam.questions.length;
+    if (total == 0) return const SizedBox();
+    
+    final index = exam.currentIndex + 1;
+    final progress = index / total;
+
+    String level = "Inicial";
+    Color color = Colors.green;
+    IconData icon = Icons.signal_cellular_alt_1_bar;
+
+    if (progress > 0.9) {
+      level = "BLOQUE FINAL";
+      color = AppColors.error;
+      icon = Icons.whatshot;
+    } else if (progress > 0.8) {
+      level = "Avanzado";
+      color = Colors.orange;
+      icon = Icons.signal_cellular_alt;
+    } else if (progress > 0.3) {
+      level = "Intermedio";
+      color = AppColors.accent;
+      icon = Icons.signal_cellular_alt_2_bar;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 14, color: color),
+          const SizedBox(width: 6),
+          Text(
+            level,
+            style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.bold),
           ),
         ],
       ),

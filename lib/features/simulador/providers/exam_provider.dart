@@ -1,7 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../data/models/question.dart';
 import '../../../data/questions.dart';
+import '../../../data/questions_admin_new.dart';
 import 'dart:math';
+import 'exam_timer_provider.dart';
 
 class ExamState {
   final List<Question> questions;
@@ -9,6 +11,7 @@ class ExamState {
   final Map<int, int> answers; // {questionIndex: selectedOptionIndex}
   final Set<int> markedQuestions; // Indices of questions marked for review
   final bool isFinished;
+  final bool isFullSimulation;
 
   ExamState({
     required this.questions,
@@ -16,6 +19,7 @@ class ExamState {
     this.answers = const {},
     this.markedQuestions = const {},
     this.isFinished = false,
+    this.isFullSimulation = false,
   });
 
   Question get currentQuestion => questions[currentIndex];
@@ -54,6 +58,7 @@ class ExamState {
     Map<int, int>? answers,
     Set<int>? markedQuestions,
     bool? isFinished,
+    bool? isFullSimulation,
   }) {
     return ExamState(
       questions: questions ?? this.questions,
@@ -61,69 +66,104 @@ class ExamState {
       answers: answers ?? this.answers,
       markedQuestions: markedQuestions ?? this.markedQuestions,
       isFinished: isFinished ?? this.isFinished,
+      isFullSimulation: isFullSimulation ?? this.isFullSimulation,
     );
   }
 }
 
 class ExamNotifier extends StateNotifier<ExamState> {
-  ExamNotifier() : super(ExamState(questions: [])) {
-    // La generación inicial por defecto es Sistemas
-    generateExam();
-  }
+  final Ref ref;
+  ExamNotifier(this.ref) : super(ExamState(questions: []));
 
   void generateExam({String career = 'Sistemas / TI'}) {
-    final random = Random();
-    List<Question> selectedQuestions = [];
-
-    if (career == 'Administración') {
-      final adminQuestions = allQuestions.where((q) => q.category == 'Administración').toList();
-      adminQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Administración para igualar a Sistemas
-      selectedQuestions = adminQuestions.take(40).toList();
-    } else if (career == 'Derecho') {
-      final lawQuestions = allQuestions.where((q) => q.category == 'Derecho').toList();
-      lawQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Derecho para el simulador EGEL
-      selectedQuestions = lawQuestions.take(40).toList();
-    } else if (career == 'Contaduría') {
-      final accQuestions = allQuestions.where((q) => q.category == 'Contaduría').toList();
-      accQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Contaduría para el simulador EGEL
-      selectedQuestions = accQuestions.take(40).toList();
-    } else if (career == 'Ingeniería Industrial') {
-      final indQuestions = allQuestions.where((q) => q.category == 'Ingeniería Industrial').toList();
-      indQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Ing. Industrial para el simulador EGEL
-      selectedQuestions = indQuestions.take(40).toList();
-    } else if (career == 'Psicología') {
-      final psiQuestions = allQuestions.where((q) => q.category == 'Psicología').toList();
-      psiQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Psicología para el simulador EGEL
-      selectedQuestions = psiQuestions.take(40).toList();
-    } else if (career == 'Enfermería') {
-      final enfQuestions = allQuestions.where((q) => q.category == 'Enfermería').toList();
-      enfQuestions.shuffle(random);
-      // Tomamos 40 preguntas de Enfermería para el simulador EGEL
-      selectedQuestions = enfQuestions.take(40).toList();
-    } else {
-      // Categorías objetivo para Sistemas / TI
+    final random = Random.secure();
+    
+    // 1. Obtener todas las preguntas disponibles para la carrera (Combinando bancos)
+    final combinedBank = [...allQuestions, ...adminQuestions];
+    
+    List<Question> available;
+    if (career == 'Sistemas / TI') {
       final categories = ['Bases de Datos', 'Programación', 'Redes y Seguridad', 'Software'];
-      for (var cat in categories) {
-        final catQuestions = allQuestions.where((q) => q.category == cat).toList();
-        catQuestions.shuffle(random);
-        // Tomar exactamente 10 de cada una para un total de 40
-        selectedQuestions.addAll(catQuestions.take(10));
+      available = combinedBank.where((q) => categories.contains(q.category)).toList();
+    } else {
+      available = combinedBank.where((q) => q.category == career).toList();
+    }
+    
+    print('DEBUG: Career: $career, Available: ${available.length}');
+
+    // 2. Determinar capacidad y modo
+    final total = 120; // SIEMPRE forzar a 120 para mantener la estructura EGEL
+    final isFullSimulation = true;
+
+    // 3. Separar por pools de dificultad
+    final pEasy = available.where((q) => q.difficulty == 'easy').toList();
+    final pMedium = available.where((q) => q.difficulty == 'medium').toList();
+    final pHard = available.where((q) => q.difficulty == 'hard').toList();
+    final pHigh = available.where((q) => q.difficulty == 'high').toList();
+
+    // Función auxiliar para rellenar un pool hasta cierto tamaño (reciclando si es necesario)
+    List<Question> _padPool(List<Question> pool, int targetSize) {
+      if (pool.isEmpty) return [];
+      final padded = List<Question>.from(pool)..shuffle(random);
+      int i = 0;
+      while (padded.length < targetSize) {
+        padded.add(pool[i % pool.length]);
+        i++;
       }
+      return padded;
     }
 
-    selectedQuestions.shuffle(random);
+    // 4. Distribuir reactivos equilibradamente (Estándar EGEL: 30, 40, 30, 20)
+    final easyTarget = 30;
+    final mediumTarget = 40;
+    final hardTarget = 30;
+    final highTarget = 20;
+
+    // Expandimos los pools asegurando que tengan la cantidad requerida. 
+    // Si un nivel está vacío, usamos todo el banco disponible como fallback.
+    final expandedEasy = _padPool(pEasy.isNotEmpty ? pEasy : available, easyTarget);
+    final expandedMedium = _padPool(pMedium.isNotEmpty ? pMedium : available, mediumTarget);
+    final expandedHard = _padPool(pHard.isNotEmpty ? pHard : available, hardTarget);
+    final expandedHigh = _padPool(pHigh.isNotEmpty ? pHigh : available, highTarget);
+
+    // 5. Generar Segmentos de Dificultad Progresiva
+    final s1Questions = expandedEasy.take(easyTarget).toList()..shuffle(random);
+    final s2Questions = expandedMedium.take(mediumTarget).toList()..shuffle(random);
+    final s3Questions = expandedHard.take(hardTarget).toList()..shuffle(random);
+    final s4Questions = expandedHigh.take(highTarget).toList()..shuffle(random);
+
+    // 6. Consolidar (Sin deduplicar para permitir reciclaje y garantizar los 120 reactivos)
+    final finalQuestions = [...s1Questions, ...s2Questions, ...s3Questions, ...s4Questions];
+
     state = ExamState(
-      questions: selectedQuestions,
+      questions: finalQuestions,
       currentIndex: 0,
       answers: {},
       markedQuestions: {},
       isFinished: false,
+      isFullSimulation: isFullSimulation,
     );
+
+    // Reiniciar el temporizador según el nuevo set de preguntas
+    ref.read(examTimerProvider.notifier).reset();
+  }
+
+  // Se mantiene por compatibilidad aunque no se use en esta versión de generateExam
+  List<Question> _safePick(List<Question> pool, int count, List<List<Question>> fallbacks, Random random) {
+    final picked = <Question>[];
+    final shuffledPool = List<Question>.from(pool)..shuffle(random);
+    
+    picked.addAll(shuffledPool.take(min(shuffledPool.length, count)));
+    
+    int i = 0;
+    while (picked.length < count && i < fallbacks.length) {
+      final fallback = List<Question>.from(fallbacks[i])..shuffle(random);
+      final remaining = count - picked.length;
+      final filtered = fallback.where((q) => !picked.any((p) => p.id == q.id)).toList();
+      picked.addAll(filtered.take(min(filtered.length, remaining)));
+      i++;
+    }
+    return picked;
   }
 
   void selectAnswer(int optionIndex) {
@@ -173,5 +213,5 @@ class ExamNotifier extends StateNotifier<ExamState> {
 }
 
 final examProvider = StateNotifierProvider<ExamNotifier, ExamState>((ref) {
-  return ExamNotifier();
+  return ExamNotifier(ref);
 });

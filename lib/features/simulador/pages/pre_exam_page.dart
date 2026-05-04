@@ -81,7 +81,7 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Preparación para tu simulación',
+                  'Entrenador Inteligente tipo EGEL',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 24,
@@ -125,6 +125,9 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
   }
 
   Widget _buildInfoCard() {
+    final exam = ref.watch(examProvider);
+    final isFull = exam.isFullSimulation;
+
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -134,22 +137,30 @@ class _PreExamPageState extends ConsumerState<PreExamPage> {
       ),
       child: Column(
         children: [
-          _buildInfoRow(Icons.help_outline, '40 preguntas'),
+          _buildInfoRow(
+            isFull ? Icons.psychology : Icons.edit_note,
+            isFull ? 'Modo: Simulador Completo EGEL' : 'Modo: Entrenamiento de Práctica',
+            color: isFull ? AppColors.accent : Colors.white70,
+          ),
           const Divider(height: 24, color: Colors.white10),
-          _buildInfoRow(Icons.timer_outlined, '40 minutos'),
+          _buildInfoRow(Icons.help_outline, '${exam.questions.length} reactivos'),
           const Divider(height: 24, color: Colors.white10),
-          _buildInfoRow(Icons.pause_circle_outline, 'No podrás pausar el examen', isWarning: true),
+          _buildInfoRow(Icons.timer_outlined, isFull ? '120 minutos (Tiempo Oficial)' : '${exam.questions.length} minutos'),
           const Divider(height: 24, color: Colors.white10),
-          _buildInfoRow(Icons.visibility_off_outlined, 'No se mostrará si las respuestas son correctas'),
+          _buildInfoRow(Icons.trending_up, 'Dificultad Progresiva Adaptativa', color: AppColors.success),
+          const Divider(height: 24, color: Colors.white10),
+          _buildInfoRow(Icons.bolt, 'Bloque Final de Alto Desafío', color: AppColors.warning),
+          const Divider(height: 24, color: Colors.white10),
+          _buildInfoRow(Icons.visibility_off_outlined, 'Sin respuestas inmediatas (Modo Real)'),
         ],
       ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String text, {bool isWarning = false}) {
+  Widget _buildInfoRow(IconData icon, String text, {bool isWarning = false, Color? color}) {
     return Row(
       children: [
-        Icon(icon, color: isWarning ? AppColors.error : AppColors.accent, size: 24),
+        Icon(icon, color: color ?? (isWarning ? AppColors.error : AppColors.accent), size: 24),
         const SizedBox(width: 16),
         Expanded(
           child: Text(

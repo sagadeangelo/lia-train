@@ -13,7 +13,7 @@ class ExamTimerNotifier extends StateNotifier<TimerState> {
   Timer? _timer;
   final Ref ref;
 
-  ExamTimerNotifier(this.ref) : super(TimerState(remainingSeconds: 40 * 60));
+  ExamTimerNotifier(this.ref) : super(TimerState(remainingSeconds: 120 * 60));
 
   void start() {
     if (state.isRunning) return;
@@ -35,7 +35,11 @@ class ExamTimerNotifier extends StateNotifier<TimerState> {
 
   void reset() {
     stop();
-    state = TimerState(remainingSeconds: 40 * 60);
+    final questions = ref.read(examProvider).questions;
+    final isFull = questions.length >= 100;
+    // Estándar EGEL: 120 min para simulador completo, 1 min por pregunta para práctica
+    final seconds = isFull ? 120 * 60 : questions.length * 60;
+    state = TimerState(remainingSeconds: seconds);
   }
 
   @override

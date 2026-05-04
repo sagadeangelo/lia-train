@@ -1,0 +1,21 @@
+
+
+Contexto:
+Un equipo estÃ¡ diseÃ±ando un sistema de comercio electrÃ³nico. Tienen una clase base "MetodoPago" y clases derivadas como "TarjetaCredito", "PayPal" y "Transferencia". El mÃ³dulo de cobros necesita ejecutar la funciÃ³n "procesarPago()" sobre una lista de mÃ©todos, sin importar cuÃ¡l sea el mÃ©todo especÃ­fico en tiempo de compilaciÃ³n.
+
+Pregunta:
+Â¿QuÃ© principio de la ProgramaciÃ³n Orientada a Objetos se debe aplicar para lograr este comportamiento dinÃ¡mico?
+
+Opciones:
+A) AbstracciÃ³n
+B) Encapsulamiento
+C) Polimorfismo
+D) Herencia mÃºltiple
+
+Respuesta correcta: C
+
+ExplicaciÃ³n:
+El polimorfismo permite que un mismo mÃ©todo reaccione y ejecute comportamientos distintos dependiendo de la clase especÃ­fica instanciada en tiempo de ejecuciÃ³n, permitiendo tratar objetos derivados a travÃ©s de la interfaz de su clase base.
+
+---
+

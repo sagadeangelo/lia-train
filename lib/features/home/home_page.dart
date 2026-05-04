@@ -35,7 +35,7 @@ class CareerInfo {
 const List<CareerInfo> careers = [
   CareerInfo(
     name: 'Sistemas / TI',
-    description: 'Simulador EGEL con programación, redes, bases de datos y más.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Sistemas / TI con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_systems.png',
     pdfImagePath: 'assets/images/book_systems_pdf.png',
     pdfUrl: 'guias/pdf/guia_egel_sistemas_final.pdf',
@@ -43,42 +43,42 @@ const List<CareerInfo> careers = [
   ),
   CareerInfo(
     name: 'Administración',
-    description: 'Simulador EGEL en gestión empresarial, finanzas, marketing y más.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Administración con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_admin.png',
     pdfImagePath: 'assets/images/book_admin_pdf.png',
     color: Color(0xFF10B981),
   ),
   CareerInfo(
     name: 'Derecho',
-    description: 'Simulador EGEL en leyes, procesos jurídicos y ética profesional.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Derecho con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_law.png',
     pdfImagePath: 'assets/images/book_law_pdf.png',
     color: Color(0xFFF59E0B),
   ),
   CareerInfo(
     name: 'Contaduría',
-    description: 'Simulador EGEL en auditoría, impuestos, contabilidad y costos.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Contaduría con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_accounting.png',
     pdfImagePath: 'assets/images/book_accounting_pdf.png',
     color: Color(0xFF8B5CF6),
   ),
   CareerInfo(
     name: 'Ing. Industrial',
-    description: 'Simulador EGEL en procesos, calidad, logística y mejora continua.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Ing. Industrial con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_industrial.png',
     pdfImagePath: 'assets/images/book_industrial_pdf.png',
     color: Color(0xFF06B6D4),
   ),
   CareerInfo(
     name: 'Psicología',
-    description: 'Simulador EGEL en clínica, social, organizacional y educativa.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Psicología con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_psichology.png',
     pdfImagePath: 'assets/images/book_psichology_pdf.png',
     color: Color(0xFFEC4899),
   ),
   CareerInfo(
     name: 'Enfermería',
-    description: 'Simulador EGEL en cuidados críticos, salud pública y gestión.',
+    description: 'Entrena y prepárate para aprobar el EGEL de Enfermería con simulación real y práctica por casos.',
     imagePath: 'assets/images/book_nursing.png',
     pdfImagePath: 'assets/images/book_nursing_pdf.png',
     color: Color(0xFFEF4444),
@@ -149,11 +149,11 @@ class LiaNavBar extends StatelessWidget {
           ),
           const Spacer(),
           if (!isMobile) ...[
-            _buildNavBadge(Icons.bolt, 'Modo Examen Real'),
+            _buildNavBadge(Icons.psychology, 'Entrenador Inteligente'),
             const SizedBox(width: 24),
-            _buildNavBadge(null, '40 Preguntas'),
+            _buildNavBadge(Icons.help_outline, 'Hasta 120 Reactivos'),
             const SizedBox(width: 24),
-            _buildNavBadge(Icons.access_time, '40 Minutos'),
+            _buildNavBadge(Icons.access_time, 'Simulación Real'),
             const SizedBox(width: 48),
           ],
           TextButton.icon(
@@ -214,15 +214,15 @@ class LiaHeroSection extends StatelessWidget {
                   textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   text: TextSpan(
                     style: TextStyle(
-                      fontSize: isMobile ? 36 : 56,
+                      fontSize: isMobile ? 32 : 48,
                       fontWeight: FontWeight.w900,
                       color: Colors.white,
                       height: 1.1,
                     ),
                     children: [
-                      const TextSpan(text: 'Entrena como si fuera\ntu '),
+                      const TextSpan(text: 'Aprueba tu EGEL entrenando\ncomo si '),
                       TextSpan(
-                        text: 'examen real',
+                        text: 'ya estuvieras',
                         style: TextStyle(
                           foreground: Paint()
                             ..shader = const LinearGradient(
@@ -230,13 +230,13 @@ class LiaHeroSection extends StatelessWidget {
                             ).createShader(const Rect.fromLTWH(0.0, 0.0, 400.0, 70.0)),
                         ),
                       ),
-                      const TextSpan(text: ' antes de presentarlo'),
+                      const TextSpan(text: ' en el examen'),
                     ],
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  'Entrena con simulaciones tipo EGEL / 286, detecta tus\náreas débiles y asegura tu resultado con precisión IA.',
+                  'Simulador inteligente + casos reales + análisis automático de tus errores para mejorar tu resultado con precisión.',
                   textAlign: isMobile ? TextAlign.center : TextAlign.start,
                   style: TextStyle(
                     fontSize: isMobile ? 16 : 20,
@@ -244,25 +244,55 @@ class LiaHeroSection extends StatelessWidget {
                     height: 1.5,
                   ),
                 ),
-                const SizedBox(height: isMobile ? 32 : 48),
+                SizedBox(height: isMobile ? 32 : 40),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                         // Scroll manual to grid o go
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.accent,
+                        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Acceder al simulador completo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                    ),
+                    OutlinedButton(
+                      onPressed: () {
+                        context.push('/challenge');
+                      },
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: const Text('Probar simulación rápida (1 min)', style: TextStyle(fontSize: 14, color: Colors.white)),
+                    ),
+                  ],
+                ),
+                SizedBox(height: isMobile ? 32 : 48),
                 if (isMobile)
                   Column(
                     children: [
-                      _buildFeatureItem(Icons.shield_outlined, 'Formato oficial', 'EGEL / 286'),
+                      _buildFeatureItem(Icons.shield_outlined, 'Simulación en formato oficial', 'EGEL / 286'),
                       const SizedBox(height: 16),
-                      _buildFeatureItem(Icons.psychology_outlined, 'Análisis IA', 'Resultados precisos'),
+                      _buildFeatureItem(Icons.psychology_outlined, 'Detección automática', 'De áreas débiles'),
                       const SizedBox(height: 16),
-                      _buildFeatureItem(Icons.trending_up, 'Mejora continua', 'Sigue tu progreso'),
+                      _buildFeatureItem(Icons.trending_up, 'Dificultad adaptativa', 'Según tu desempeño'),
                     ],
                   )
                 else
-                  Row(
+                  Wrap(
+                    spacing: 32,
+                    runSpacing: 16,
                     children: [
-                      _buildFeatureItem(Icons.shield_outlined, 'Formato oficial', 'EGEL / 286'),
-                      const SizedBox(width: 40),
-                      _buildFeatureItem(Icons.psychology_outlined, 'Análisis IA', 'Resultados precisos'),
-                      const SizedBox(width: 40),
-                      _buildFeatureItem(Icons.trending_up, 'Mejora continua', 'Sigue tu progreso'),
+                      _buildFeatureItem(Icons.shield_outlined, 'Simulación en formato oficial', 'EGEL / 286'),
+                      _buildFeatureItem(Icons.psychology_outlined, 'Detección automática', 'De áreas débiles'),
+                      _buildFeatureItem(Icons.trending_up, 'Dificultad adaptativa', 'Según tu desempeño'),
                     ],
                   ),
               ],
@@ -293,7 +323,7 @@ class LiaHeroSection extends StatelessWidget {
         border: Border.all(color: const Color(0xFF334155)),
       ),
       child: const Text(
-        'MODO REAL  •  40 PREGUNTAS  •  40 MINUTOS',
+        'MODO REAL  •  HASTA 120 REACTIVOS  •  120 MINUTOS',
         style: TextStyle(
           color: Color(0xFF3B82F6),
           fontSize: 11,
@@ -306,15 +336,19 @@ class LiaHeroSection extends StatelessWidget {
 
   Widget _buildFeatureItem(IconData icon, String title, String subtitle) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Icon(icon, color: AppColors.accent, size: 28),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
-            Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
-          ],
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(subtitle, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+            ],
+          ),
         ),
       ],
     );
@@ -469,6 +503,7 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
   }
 
   void _onSimularTap() {
+    print('DEBUG: Simular EGEL button tapped for ${widget.info.name}');
     ref.read(examProvider.notifier).generateExam(
       career: widget.info.name == 'Ing. Industrial' ? 'Ingeniería Industrial' : widget.info.name,
     );
@@ -567,7 +602,36 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
               ),
               const SizedBox(height: 32),
 
-              // 1. SIMULADOR (ENTRADA)
+              // Mensaje de diferenciación (CAMBIO 5)
+              Container(
+                margin: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: widget.info.color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: widget.info.color.withOpacity(0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.visibility_off, size: 14, color: widget.info.color),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        "Entrena bajo condiciones reales de examen (sin respuestas inmediatas)",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: widget.info.color,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // 1. ACCESO BÁSICO
               _buildTapButton(
                 isPressed: _isPressedSimular,
                 onTapDown: (_) => setState(() => _isPressedSimular = true),
@@ -575,53 +639,25 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
                 onTapCancel: () => setState(() => _isPressedSimular = false),
                 onHover: (v) => setState(() => _isHoveredSimular = v),
                 isHovered: _isHoveredSimular,
-                child: _buildSimpleButton(
-                  text: "▶ Simular EGEL - \$149",
-                  icon: null,
+                child: _buildOutlineButton(
+                  text: "▶ Acceso Básico - \$149",
+                  subtitle: "1 simulación (120 reactivos, 120 min)",
                   color: widget.info.color,
                   onTap: _onSimularTap,
                   isMobile: isMobile,
                 ),
               ),
 
-              const SizedBox(height: 12),
-
-              // 2. GUÍA PDF (ALTERNATIVA)
-              _buildTapButton(
-                isPressed: _isPressedPdf,
-                onTapDown: (_) => setState(() => _isPressedPdf = true),
-                onTapUp: (_) => setState(() => _isPressedPdf = false),
-                onTapCancel: () => setState(() => _isPressedPdf = false),
-                onHover: (v) => setState(() => _isHoveredPdf = v),
-                isHovered: _isHoveredPdf,
-                child: _buildOutlineButton(
-                  text: "📘 Guía PDF - \$299",
-                  subtitle: "Estudia a tu ritmo",
-                  color: widget.info.color,
-                  onTap: _onPdfTap,
-                  isMobile: isMobile,
-                ),
-              ),
-
               const SizedBox(height: 24),
 
-              // 3. BUNDLE (CONVERSIÓN PRINCIPAL)
+              // 2. ENTRENADOR INTELIGENTE EGEL
               Text(
-                "🔥 MÁS POPULAR",
+                "🔥 MÁS RECOMENDADO",
                 style: TextStyle(
                   color: const Color(0xFFF59E0B),
                   fontWeight: FontWeight.w900,
                   fontSize: isMobile ? 13 : 12,
                   letterSpacing: 1.2,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "💎 Ahorra \$99 (antes \$448)",
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.8),
-                  fontSize: isMobile ? 12 : 11,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 12),
@@ -641,7 +677,7 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
                       scale: _pulseAnimation,
                       child: Container(
                         width: double.infinity,
-                        padding: EdgeInsets.symmetric(vertical: isMobile ? 24 : 18),
+                        padding: EdgeInsets.symmetric(vertical: isMobile ? 24 : 18, horizontal: 16),
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             colors: [widget.info.color, widget.info.color.withOpacity(0.7)],
@@ -660,19 +696,55 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
                         child: Column(
                           children: [
                             Text(
-                              "🔥 Todo incluido - \$349",
+                              "Entrenador Inteligente - \$499",
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w900,
                                 fontSize: isMobile ? 19 : 16,
                               ),
                             ),
+                            const SizedBox(height: 8),
                             Text(
-                              "Guía + Simulador",
+                              "Ilimitado + Adaptativo + Análisis",
+                              textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: Colors.white.withOpacity(0.9),
                                 fontSize: isMobile ? 14 : 12,
                                 fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "🎁 Incluye guía profesional con 200 casos",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isMobile ? 12 : 10,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                "Acceder al entrenador",
+                                style: TextStyle(
+                                  color: widget.info.color,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
                           ],
@@ -683,19 +755,32 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
                 ),
               ),
               const SizedBox(height: 24),
-              Text(
-                "🔥 Incluye 200 casos tipo examen real",
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
-                  fontSize: isMobile ? 13 : 12,
-                  fontStyle: FontStyle.italic,
-                  fontWeight: FontWeight.w500,
-                ),
+              // Microcopy
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 12,
+                runSpacing: 8,
+                children: [
+                  _buildMicrocopyItem(Icons.flash_on, "Acceso inmediato"),
+                  _buildMicrocopyItem(Icons.today, "Entrena hoy mismo"),
+                  _buildMicrocopyItem(Icons.cloud_done_outlined, "Sin instalaciones"),
+                ],
               ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMicrocopyItem(IconData icon, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.grey, size: 12),
+        const SizedBox(width: 4),
+        Text(text, style: const TextStyle(color: Colors.grey, fontSize: 11)),
+      ],
     );
   }
 
@@ -783,6 +868,7 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
           children: [
             Text(
               text,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: color,
                 fontWeight: FontWeight.w900,
@@ -792,6 +878,7 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
             if (subtitle != null)
               Text(
                 subtitle,
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: color.withOpacity(0.7),
                   fontWeight: FontWeight.w500,
@@ -914,7 +1001,7 @@ class _LiaTrainPromoSectionState extends State<LiaTrainPromoSection> with Single
                   width: isMobile ? double.infinity : null,
                   child: ElevatedButton(
                     onPressed: () {
-                      context.go('/challenge');
+                      context.push('/challenge');
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.accent,
@@ -1051,7 +1138,7 @@ class LiaBottomCTA extends StatelessWidget {
           const SizedBox(width: 40),
           ElevatedButton.icon(
             onPressed: () {
-               context.go('/challenge');
+               context.push('/challenge');
             },
             icon: const Text('Descubre si pasarías hoy', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             label: const Icon(Icons.arrow_forward, color: Colors.white),
