@@ -31,14 +31,7 @@ class _ShuffleChallengePageState extends State<ShuffleChallengePage> with Ticker
   String? _selectedArea;
   final Random _random = Random();
 
-  final List<String> _areas = [
-    'Programación',
-    'Software',
-    'Redes y Seguridad',
-    'Programación',
-    'Software',
-    'Redes y Seguridad',
-  ];
+  late final List<String> _areas = allQuestions.map((q) => q.category).toSet().toList();
 
   @override
   void initState() {
