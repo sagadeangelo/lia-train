@@ -85,21 +85,39 @@ const List<CareerInfo> careers = [
   ),
 ];
 
-class HomePage extends ConsumerWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final GlobalKey _careersKey = GlobalKey();
+
+  void _scrollToCareers() {
+    final context = _careersKey.currentContext;
+    if (context != null) {
+      Scrollable.ensureVisible(
+        context,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.primary,
       body: SingleChildScrollView(
         child: Column(
           children: [
             const LiaNavBar(),
-            const LiaHeroSection(),
+            LiaHeroSection(onAccederTap: _scrollToCareers),
             const LiaTrainPromoSection(),
             const SizedBox(height: 60),
-            const LiaCareerSelectionHeader(),
+            LiaCareerSelectionHeader(key: _careersKey),
             const SizedBox(height: 40),
             const LiaCareerGrid(),
             const SizedBox(height: 60),
@@ -191,7 +209,9 @@ class LiaNavBar extends StatelessWidget {
 }
 
 class LiaHeroSection extends StatelessWidget {
-  const LiaHeroSection({super.key});
+  final VoidCallback onAccederTap;
+
+  const LiaHeroSection({super.key, required this.onAccederTap});
 
   @override
   Widget build(BuildContext context) {
@@ -251,9 +271,7 @@ class LiaHeroSection extends StatelessWidget {
                   alignment: isMobile ? WrapAlignment.center : WrapAlignment.start,
                   children: [
                     ElevatedButton(
-                      onPressed: () {
-                         // Scroll manual to grid o go
-                      },
+                      onPressed: onAccederTap,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accent,
                         padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 20),
