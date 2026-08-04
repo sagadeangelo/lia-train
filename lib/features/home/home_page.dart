@@ -4,11 +4,11 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../data/services/persistence_service.dart';
 import '../simulador/pages/pre_exam_page.dart';
-import '../simulador/pages/simulador_page.dart';
-import '../demo/pages/demo_exam_page.dart';
-import '../gamification/pages/shuffle_challenge_page.dart';
 import '../simulador/providers/exam_provider.dart';
 import '../../core/constants/app_colors.dart';
+import '../../data/services/payment_service.dart';
+import '../../data/services/license_service.dart';
+import '../../data/providers/license_provider.dart';
 
 final progressProvider = FutureProvider<Map<String, dynamic>>((ref) {
   return PersistenceService().loadProgress();
@@ -492,11 +492,11 @@ class CareerItem extends ConsumerStatefulWidget {
 class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProviderStateMixin {
   bool _isHovered = false;
   bool _isHoveredSimular = false;
-  bool _isHoveredPdf = false;
+  bool _isHoveredGuia = false;
   bool _isHoveredBundle = false;
 
   bool _isPressedSimular = false;
-  bool _isPressedPdf = false;
+  bool _isPressedGuia = false;
   bool _isPressedBundle = false;
 
   late AnimationController _pulseController;
@@ -520,41 +520,226 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
     super.dispose();
   }
 
-  void _onSimularTap() {
-    print('DEBUG: Simular EGEL button tapped for ${widget.info.name}');
-    ref.read(examProvider.notifier).generateExam(
-      career: widget.info.name == 'Ing. Industrial' ? 'Ingeniería Industrial' : widget.info.name,
+  // ──────────────────────────────────────────────────────────
+  // FASE 5 — UI GATING
+  // Cada botón consulta las licencias del usuario PRIMERO.
+  // Si tiene el permiso → acceso directo.
+  // Si NO tiene → flujo de pago.
+  // Flutter nunca decide permisos: solo obedece la respuesta del Worker.
+  // ──────────────────────────────────────────────────────────
+
+  // ── Acceso Básico ($149) ──────────────────────────────────
+  void _onSimularTap() async {
+    final careerKey = widget.info.name
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll('.', '');
+
+    // 1. Verificar licencia existente
+    final licenses = ref.read(licensesProvider).valueOrNull ?? [];
+    final tieneAcceso = LicenseService.hasPermission(
+      licenses,
+      'simulador',
+      career: careerKey,
     );
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const PreExamPage()));
+
+    if (tieneAcceso) {
+      // ✅ Tiene licencia — acceso directo al simulador
+      ref.read(examProvider.notifier).generateExam(
+        career: widget.info.name == 'Ing. Industrial'
+            ? 'Ingeniería Industrial'
+            : widget.info.name,
+      );
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const PreExamPage()),
+        );
+      }
+      return;
+    }
+
+    // ❌ Sin licencia — iniciar flujo de pago
+    final email = await _getOrAskEmail();
+    if (email == null) return; // usuario canceló el diálogo
+
+    await _iniciarPago(
+      productId: 'simulador_basico',
+      title: 'Simulador EGEL - ${widget.info.name}',
+      price: 149,
+      email: email,
+      career: careerKey,
+    );
   }
 
-  void _onPdfTap() async {
-    if (widget.info.pdfUrl != null) {
-      final uri = Uri.parse(widget.info.pdfUrl!);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('No se pudo abrir el PDF.'), backgroundColor: Colors.red),
-          );
+  // ── Guía Profesional EGEL ($249) ──────────────────────────
+  void _onGuiaTap() async {
+    final careerKey = widget.info.name
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll('.', '');
+
+    // Verificar permiso 'pdf'
+    final licenses = ref.read(licensesProvider).valueOrNull ?? [];
+    if (LicenseService.hasPermission(licenses, 'pdf', career: careerKey)) {
+      _showErrorSnack('Tu PDF estará disponible en tu correo registrado.');
+      return;
+    }
+
+    final email = await _getOrAskEmail();
+    if (email == null) return;
+
+    await _iniciarPago(
+      productId: 'guia_profesional',
+      title: 'Guía Profesional EGEL - ${widget.info.name}',
+      price: 249,
+      email: email,
+      career: careerKey,
+    );
+  }
+
+  // ── Entrenador Inteligente ($499) ─────────────────────────
+  void _onBundleTap() async {
+    final careerKey = widget.info.name
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll('.', '');
+
+    // 1. Verificar licencia premium existente
+    final licenses = ref.read(licensesProvider).valueOrNull ?? [];
+    final tieneAcceso = LicenseService.hasPermission(
+      licenses,
+      'premium',
+      career: careerKey,
+    );
+
+    if (tieneAcceso) {
+      // ✅ Tiene licencia premium — acceso directo al entrenador
+      // (ruta futura: context.push('/entrenador?career=$careerKey'))
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Accediendo a tu Entrenador Inteligente...'),
+            backgroundColor: Color(0xFF10B981),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
+    // ❌ Sin licencia — iniciar flujo de pago
+    final email = await _getOrAskEmail();
+    if (email == null) return;
+
+    await _iniciarPago(
+      productId: 'entrenador_inteligente',
+      title: 'Entrenador Inteligente EGEL - ${widget.info.name}',
+      price: 499,
+      email: email,
+      career: careerKey,
+    );
+  }
+
+  // ── Recolección de email ──────────────────────────────────
+  // Recupera el email guardado o muestra un diálogo para pedirlo.
+  // Devuelve null si el usuario cancela.
+  Future<String?> _getOrAskEmail() async {
+    // Primero intentar email ya guardado
+    final saved = await LicenseService.getSavedEmail();
+    if (saved != null && saved.isNotEmpty) return saved;
+
+    // Pedir email al usuario
+    if (!mounted) return null;
+    final email = await showDialog<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => _EmailDialog(),
+    );
+
+    if (email != null && email.isNotEmpty) {
+      await LicenseService.saveEmail(email);
+      // Actualizar provider para que las licencias se recarguen
+      ref.read(userEmailProvider.notifier).state = email;
+    }
+
+    return email;
+  }
+
+  // ── Motor central de pagos ────────────────────────────────
+  // Llama al Worker de Cloudflare → obtiene checkoutUrl → abre Checkout Pro.
+  // No hay credenciales de Mercado Pago en este archivo.
+  Future<void> _iniciarPago({
+    required String productId,
+    required String title,
+    required double price,
+    required String email,
+    String? career,
+  }) async {
+    _showLoadingSnack();
+
+    try {
+      final checkoutUrl = await PaymentService.createPreference(
+        productId: productId,
+        title: title,
+        price: price,
+        email: email,
+        career: career,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        final uri = Uri.parse(checkoutUrl);
+        if (await canLaunchUrl(uri)) {
+          await launchUrl(uri, mode: LaunchMode.externalApplication);
+        } else {
+          _showErrorSnack('No se pudo abrir la página de pago. Intenta de nuevo.');
         }
       }
-    } else {
-      _showPurchaseSnack();
+    } on PaymentException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _showErrorSnack(e.message);
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        _showErrorSnack('Ocurrió un error inesperado. Verifica tu conexión e intenta de nuevo.');
+      }
     }
   }
 
-  void _onBundleTap() {
-    _showPurchaseSnack();
-  }
-
-  void _showPurchaseSnack() {
+  void _showLoadingSnack() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Iniciando flujo de compra seguro...'),
+        content: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+            SizedBox(width: 16),
+            Text('Iniciando flujo de compra seguro...'),
+          ],
+        ),
         backgroundColor: Color(0xFF009EE3),
         behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 20),
+      ),
+    );
+  }
+
+  void _showErrorSnack(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red.shade700,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
       ),
     );
   }
@@ -620,55 +805,158 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
               ),
               const SizedBox(height: 32),
 
-              // Mensaje de diferenciación (CAMBIO 5)
+              // 1. SIMULADOR PROFESIONAL EGEL ($149)
               Container(
-                margin: const EdgeInsets.only(bottom: 24),
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+                padding: EdgeInsets.all(isMobile ? 16 : 20),
                 decoration: BoxDecoration(
-                  color: widget.info.color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: widget.info.color.withOpacity(0.3)),
+                  color: Colors.white.withOpacity(0.03),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.white.withOpacity(0.08)),
                 ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.visibility_off, size: 14, color: widget.info.color),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        "Entrena bajo condiciones reales de examen (sin respuestas inmediatas)",
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color: widget.info.color,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        Icon(Icons.track_changes_rounded, color: widget.info.color, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Simulador Profesional",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: isMobile ? 15 : 14,
+                            ),
+                          ),
                         ),
+                        Text(
+                          "\$149",
+                          style: TextStyle(
+                            color: widget.info.color,
+                            fontWeight: FontWeight.w900,
+                            fontSize: isMobile ? 16 : 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFeatureItem(Icons.check, "Entrena bajo condiciones reales"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "Sin respuestas inmediatas"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "Cronómetro oficial (120 min)"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "1 simulación (120 reactivos)"),
+                    const SizedBox(height: 16),
+                    _buildTapButton(
+                      isPressed: _isPressedSimular,
+                      onTapDown: (_) => setState(() => _isPressedSimular = true),
+                      onTapUp: (_) => setState(() => _isPressedSimular = false),
+                      onTapCancel: () => setState(() => _isPressedSimular = false),
+                      onHover: (v) => setState(() => _isHoveredSimular = v),
+                      isHovered: _isHoveredSimular,
+                      child: _buildOutlineButton(
+                        text: "Comprar simulación",
+                        color: widget.info.color,
+                        onTap: _onSimularTap,
+                        isMobile: isMobile,
                       ),
                     ),
                   ],
                 ),
               ),
 
-              // 1. ACCESO BÁSICO
-              _buildTapButton(
-                isPressed: _isPressedSimular,
-                onTapDown: (_) => setState(() => _isPressedSimular = true),
-                onTapUp: (_) => setState(() => _isPressedSimular = false),
-                onTapCancel: () => setState(() => _isPressedSimular = false),
-                onHover: (v) => setState(() => _isHoveredSimular = v),
-                isHovered: _isHoveredSimular,
-                child: _buildOutlineButton(
-                  text: "▶ Acceso Básico - \$149",
-                  subtitle: "1 simulación (120 reactivos, 120 min)",
-                  color: widget.info.color,
-                  onTap: _onSimularTap,
-                  isMobile: isMobile,
+              const SizedBox(height: 24),
+
+              // 2. GUÍA PROFESIONAL EGEL ($249)
+              Container(
+                padding: EdgeInsets.all(isMobile ? 16 : 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [const Color(0xFF1E3A8A).withOpacity(0.8), const Color(0xFF312E81).withOpacity(0.8)],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.blueAccent.withOpacity(0.4)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.1),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: const Text(
+                        "📘 MATERIAL DE ESTUDIO",
+                        style: TextStyle(color: Colors.lightBlueAccent, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1.0),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.menu_book_rounded, color: Colors.white, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            "Guía Profesional EGEL",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: isMobile ? 16 : 15,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          "\$249",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: isMobile ? 16 : 15,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildFeatureItem(Icons.check, "Más de 200 casos prácticos"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "Explicaciones completas"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "Estrategias para aprobar"),
+                    const SizedBox(height: 4),
+                    _buildFeatureItem(Icons.check, "PDF descargable al instante"),
+                    const SizedBox(height: 16),
+                    _buildTapButton(
+                      isPressed: _isPressedGuia,
+                      onTapDown: (_) => setState(() => _isPressedGuia = true),
+                      onTapUp: (_) => setState(() => _isPressedGuia = false),
+                      onTapCancel: () => setState(() => _isPressedGuia = false),
+                      onHover: (v) => setState(() => _isHoveredGuia = v),
+                      isHovered: _isHoveredGuia,
+                      child: _buildOutlineButton(
+                        text: "Descargar guía",
+                        color: Colors.lightBlueAccent,
+                        onTap: _onGuiaTap,
+                        isMobile: isMobile,
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              // 2. ENTRENADOR INTELIGENTE EGEL
+              // 3. ENTRENADOR INTELIGENTE EGEL
               Text(
                 "🔥 MÁS RECOMENDADO",
                 style: TextStyle(
@@ -802,6 +1090,22 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
     );
   }
 
+  Widget _buildFeatureItem(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, color: Colors.white70, size: 14),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(color: Colors.white70, fontSize: 13),
+          ),
+        ),
+      ],
+    );
+  }
+
+
   Widget _buildTapButton({
     required bool isPressed,
     required Function(TapDownDetails) onTapDown,
@@ -827,6 +1131,7 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
     );
   }
 
+  // ignore: unused_element
   Widget _buildSimpleButton({
     required String text,
     IconData? icon,
@@ -904,6 +1209,166 @@ class _CareerItemState extends ConsumerState<CareerItem> with SingleTickerProvid
                 ),
               ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// _EmailDialog — Recopila el email del usuario antes del pago
+//
+// Solo se muestra la primera vez. Después se usa el email guardado
+// en SharedPreferences. Diseño consistente con el tema oscuro de LIA.
+// ============================================================
+class _EmailDialog extends StatefulWidget {
+  @override
+  State<_EmailDialog> createState() => _EmailDialogState();
+}
+
+class _EmailDialogState extends State<_EmailDialog> {
+  final _controller = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _submit() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    Navigator.of(context).pop(_controller.text.trim().toLowerCase());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      backgroundColor: const Color(0xFF0F172A),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 420),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Ícono
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.mail_outline, color: AppColors.accent, size: 24),
+                ),
+                const SizedBox(height: 20),
+
+                // Título
+                const Text(
+                  '¿Cuál es tu correo?',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Lo usaremos para enviarte tu licencia y futuras actualizaciones. No recibirás spam.',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.5),
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Campo de email
+                TextFormField(
+                  controller: _controller,
+                  autofocus: true,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: 'tu@correo.com',
+                    hintStyle: TextStyle(color: Colors.white.withOpacity(0.3)),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.05),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide(color: Colors.white.withOpacity(0.1)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.accent, width: 2),
+                    ),
+                    prefixIcon: Icon(Icons.alternate_email, color: Colors.white.withOpacity(0.4), size: 18),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  ),
+                  validator: (v) {
+                    final val = v?.trim() ?? '';
+                    if (val.isEmpty) return 'Ingresa tu correo electrónico';
+                    if (!val.contains('@') || !val.contains('.')) return 'Correo inválido';
+                    return null;
+                  },
+                  onFieldSubmitted: (_) => _submit(),
+                ),
+                const SizedBox(height: 24),
+
+                // Botones
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.of(context).pop(null),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(color: Colors.white.withOpacity(0.2)),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: Text(
+                          'Cancelar',
+                          style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: _submit,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.accent,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          elevation: 0,
+                        ),
+                        child: const Text(
+                          'Continuar al pago →',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
