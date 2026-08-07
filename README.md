@@ -1,132 +1,246 @@
-# 🚂 LIA-Train
+<div align="center">
 
-> Plataforma de entrenamiento inteligente impulsada por Inteligencia Artificial para preparación laboral, entrevistas y desarrollo profesional.
+# 🧠 LIA-Train
 
-![Flutter](https://img.shields.io/badge/Flutter-3.x-blue)
-![Dart](https://img.shields.io/badge/Dart-3.x-blue)
-![AI-Powered](https://img.shields.io/badge/AI-Powered-success)
-![Status](https://img.shields.io/badge/Status-Active-green)
-![License](https://img.shields.io/badge/License-MIT-orange)
+### AI Career Training Platform
+
+**Entrena tus habilidades. Impulsa tu carrera. Consigue mejores oportunidades con Inteligencia Artificial.**
+
+---
+
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?logo=dart)](https://dart.dev)
+[![Platform](https://img.shields.io/badge/Platform-Android%20|%20Windows%20|%20Web-success)]()
+[![License](https://img.shields.io/badge/License-MIT-orange)]()
+[![Status](https://img.shields.io/badge/Status-In%20Development-blue)]()
+
+---
+
+### Construido como parte del ecosistema **LIA (Learning Intelligence Assistant)**
+
+</div>
 
 ---
 
 # 📖 ¿Qué es LIA-Train?
 
-**LIA-Train** es una plataforma creada para ayudar a las personas a prepararse para conseguir mejores oportunidades laborales mediante Inteligencia Artificial.
+LIA-Train es una plataforma de entrenamiento profesional impulsada por Inteligencia Artificial diseñada para ayudar a las personas a prepararse para conseguir empleo, cambiar de carrera o desarrollar nuevas habilidades.
 
-El sistema permite simular procesos reales de contratación, entrenar entrevistas, mejorar currículums y desarrollar habilidades profesionales utilizando IA.
+No se trata únicamente de practicar entrevistas.
 
-La meta del proyecto es convertirse en un entrenador laboral personal disponible 24/7.
+LIA-Train analiza tu perfil profesional, identifica oportunidades de mejora y crea rutas de aprendizaje personalizadas para acelerar tu crecimiento.
+
+La plataforma funciona como un entrenador profesional disponible las 24 horas.
+
+---
+
+# 🎯 Objetivos
+
+- Preparar candidatos para entrevistas laborales.
+- Mejorar currículums mediante IA.
+- Identificar habilidades faltantes.
+- Recomendar cursos y certificaciones.
+- Simular procesos reales de contratación.
+- Aumentar la empleabilidad del usuario.
 
 ---
 
 # ✨ Características
 
-- 🤖 Simulación de entrevistas laborales
-- 📄 Análisis inteligente de CV
-- 📈 Evaluación de habilidades
-- 🎯 Planes personalizados de aprendizaje
-- 🧠 Asistente IA para responder preguntas
-- 📚 Recomendaciones de cursos y certificaciones
-- 🌎 Preparación para empleos nacionales e internacionales
-- 📱 Aplicación multiplataforma (Flutter)
+## 🤖 Simulador de entrevistas
+
+- Recursos Humanos
+- Tecnología
+- Ingeniería
+- Ventas
+- Administración
+- Inglés
+
+---
+
+## 📄 CV Inteligente
+
+Analiza automáticamente:
+
+- experiencia
+- habilidades
+- ATS Score
+- palabras clave
+- estructura
+- fortalezas
+- oportunidades de mejora
+
+---
+
+## 🧠 Mentor IA
+
+Un asistente inteligente capaz de responder preguntas relacionadas con:
+
+- entrevistas
+- salarios
+- puestos
+- habilidades
+- tecnologías
+- crecimiento profesional
+
+---
+
+## 📚 Aprendizaje Personalizado
+
+Genera rutas de aprendizaje utilizando IA.
+
+Ejemplo:
+
+```
+Usuario
+
+↓
+
+Analiza experiencia
+
+↓
+
+Detecta habilidades faltantes
+
+↓
+
+Busca cursos
+
+↓
+
+Recomienda certificaciones
+
+↓
+
+Entrena entrevistas
+
+↓
+
+Seguimiento del progreso
+```
+
+---
+
+## 📊 Dashboard
+
+Visualización del progreso del usuario.
+
+- Nivel profesional
+- Entrevistas realizadas
+- Puntaje
+- CV Score
+- Cursos completados
+- Objetivos alcanzados
 
 ---
 
 # 🏗 Arquitectura
 
 ```
-Flutter
-│
-├── Presentation
-├── Domain
-├── Data
-├── Providers
-├── Services
-├── AI Engine
-└── Local Storage
+lib/
+
+├── core/
+├── models/
+├── providers/
+├── repositories/
+├── services/
+├── widgets/
+├── screens/
+├── ai/
+├── interview/
+├── learning/
+├── profile/
+└── shared/
 ```
 
-Arquitectura basada en principios de **Clean Architecture** para facilitar mantenimiento y escalabilidad.
+Arquitectura basada en principios de Clean Architecture y Provider.
 
 ---
 
 # 🚀 Tecnologías
 
-- Flutter
-- Dart
-- Provider
-- Material Design 3
-- Firebase (planeado)
-- APIs de Inteligencia Artificial
-- Python (Backend IA)
-- REST APIs
+| Tecnología | Uso |
+|------------|-----|
+| Flutter | Aplicación |
+| Dart | Desarrollo |
+| Provider | Gestión de estado |
+| Material Design 3 | UI |
+| Firebase | Próximamente |
+| IA Generativa | Mentor Inteligente |
+| Python | Backend IA |
+| REST API | Comunicación |
+
+---
+
+# 🧠 Inteligencia Artificial
+
+LIA-Train integra IA para:
+
+✅ Analizar CV
+
+✅ Simular entrevistas
+
+✅ Detectar habilidades
+
+✅ Recomendar aprendizaje
+
+✅ Generar preguntas dinámicas
+
+✅ Evaluar respuestas
+
+✅ Crear planes personalizados
 
 ---
 
 # 📱 Módulos
 
-### 👤 Perfil Profesional
+## 👤 Perfil Profesional
 
-Gestión del usuario y experiencia laboral.
-
----
-
-### 📄 CV Inteligente
-
-Analiza automáticamente un currículum.
-
-Puede sugerir:
-
-- mejoras
-- palabras clave
-- formato
-- habilidades faltantes
+Gestión del perfil laboral.
 
 ---
 
-### 🎤 Simulador de Entrevistas
+## 📄 CV Analyzer
 
-Genera entrevistas dinámicas mediante IA.
-
-Incluye:
-
-- Recursos Humanos
-- Entrevistas técnicas
-- Inglés
-- Ventas
-- Administración
-- TI
+Análisis inteligente del currículum.
 
 ---
 
-### 📚 Centro de Aprendizaje
+## 🎤 Interview Simulator
 
-Recomendación automática de:
-
-- cursos
-- certificaciones
-- libros
-- rutas de aprendizaje
+Simulación de entrevistas con IA.
 
 ---
 
-### 📊 Dashboard
+## 📚 Learning Center
 
-Seguimiento del progreso del usuario.
+Cursos, certificaciones y libros.
 
-- porcentaje de avance
-- habilidades
-- historial
-- puntuaciones
+---
+
+## 📈 Career Dashboard
+
+Seguimiento del crecimiento profesional.
+
+---
+
+# 🌎 Futuras Integraciones
+
+- LinkedIn
+- Indeed
+- Computrabajo
+- OCC Mundial
+- Glassdoor
+- Coursera
+- Udemy
+- Microsoft Learn
+- Google Career Certificates
 
 ---
 
 # 📸 Capturas
 
-*(Próximamente)*
-
-Puedes agregar aquí imágenes de la aplicación.
+Próximamente.
 
 ```
 assets/screenshots/
@@ -136,37 +250,41 @@ assets/screenshots/
 
 # 🛣 Roadmap
 
-## Fase 1
+## Versión 0.1
 
-- [x] Diseño UI
-- [x] Arquitectura inicial
-- [ ] Motor IA
+- [x] Arquitectura
+- [x] Diseño inicial
 - [ ] Simulador de entrevistas
-
-## Fase 2
-
-- [ ] CV Inteligente
-- [ ] Generador de preguntas
-- [ ] Recomendaciones IA
-
-## Fase 3
-
-- [ ] Conexión con LinkedIn
-- [ ] Indeed
-- [ ] OCC
-- [ ] Computrabajo
-
-## Fase 4
-
-- [ ] Coach Virtual
-- [ ] Avatar IA
-- [ ] Reconocimiento de voz
+- [ ] Perfil profesional
 
 ---
 
-# 💡 Visión
+## Versión 0.5
 
-LIA-Train busca convertirse en el entrenador profesional más completo de Latinoamérica utilizando Inteligencia Artificial para democratizar el acceso a mejores empleos.
+- [ ] IA para análisis de CV
+- [ ] Dashboard
+- [ ] Recomendaciones IA
+
+---
+
+## Versión 1.0
+
+- [ ] Coach Profesional IA
+- [ ] Reconocimiento de voz
+- [ ] Entrevistas por video
+- [ ] Reportes inteligentes
+
+---
+
+# 🌌 Ecosistema LIA
+
+| Proyecto | Descripción |
+|----------|-------------|
+| 📚 LIA | Lectura Inmersiva Aumentada |
+| 🚀 LIA-Tech | Plataforma tecnológica |
+| 📖 LIA-Publish | Publicación inteligente |
+| 💼 LIA-EmployX | Reclutamiento asistido por IA |
+| 🧠 LIA-Train | Entrenamiento profesional con IA |
 
 ---
 
@@ -174,50 +292,56 @@ LIA-Train busca convertirse en el entrenador profesional más completo de Latino
 
 Las contribuciones son bienvenidas.
 
-Si deseas colaborar:
+```bash
+Fork
 
-1. Haz un Fork
-2. Crea una rama
+↓
 
+Crear Branch
+
+↓
+
+Desarrollar
+
+↓
+
+Commit
+
+↓
+
+Push
+
+↓
+
+Pull Request
 ```
-feature/nueva-funcion
-```
-
-3. Haz Commit
-
-```
-git commit -m "Nueva función"
-```
-
-4. Haz Push
-
-```
-git push
-```
-
-5. Abre un Pull Request.
 
 ---
 
-# 📜 Licencia
+# 📄 Licencia
 
-MIT License
+MIT License.
 
 ---
 
 # 👨‍💻 Autor
 
-**Miguel Tovar**
+## Miguel Tovar
 
-Fundador del ecosistema **LIA**
+Founder of the **LIA Ecosystem**
 
+- LIA
 - LIA-Train
-- LIA-Publish
-- LIA-Reader
 - LIA-Tech
+- LIA-Publish
+- LIA-EmployX
 
 ---
 
-# ⭐ Si este proyecto te gusta...
+<div align="center">
 
-No olvides dejar una ⭐ en el repositorio.
+## ⭐ Si este proyecto te resulta útil, considera darle una estrella al repositorio.
+
+**La educación impulsada por IA puede transformar el futuro profesional de millones de personas.**
+
+</div>
